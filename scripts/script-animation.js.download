@@ -1,0 +1,504 @@
+// Minified version of isMobile included in the HTML since it's <1kb
+(function(i){var e=/iPhone/i,n=/iPod/i,o=/iPad/i,t=/(?=.*\bAndroid\b)(?=.*\bMobile\b)/i,r=/Android/i,d=/BlackBerry/i,s=/Opera Mini/i,a=/IEMobile/i,b=/(?=.*\bFirefox\b)(?=.*\bMobile\b)/i,h=RegExp("(?:Nexus 7|BNTV250|Kindle Fire|Silk|GT-P1000)","i"),c=function(i,e){return i.test(e)},l=function(i){var l=i||navigator.userAgent;this.apple={phone:c(e,l),ipod:c(n,l),tablet:c(o,l),device:c(e,l)||c(n,l)||c(o,l)},this.android={phone:c(t,l),tablet:!c(t,l)&&c(r,l),device:c(t,l)||c(r,l)},this.other={blackberry:c(d,l),opera:c(s,l),windows:c(a,l),firefox:c(b,l),device:c(d,l)||c(s,l)||c(a,l)||c(b,l)},this.seven_inch=c(h,l),this.any=this.apple.device||this.android.device||this.other.device||this.seven_inch},v=i.isMobile=new l;v.Class=l})(window);
+
+$(function() {
+  $(document).ready(function() {
+
+    var slideshow; 
+  
+	//var exits = ['fadeOut', 'fadeOutDown', 'fadeOutUpBig', 'bounceOut', 'bounceOutDown', 'hinge',
+	//			'bounceOutUp', 'bounceOutLeft', 'rotateOut', 'rotateOutUpLeft', 'lightSpeedOut', 'rollOut'];
+	//var exits = ['fadeOut'];
+	var exits = [];
+				
+	//var entrances = ['fadeIn', 'fadeInDown', 'fadeInRight', 'bounceIn', 'bounceInRight', 'rotateIn',
+	//				 'rotateInDownLeft', 'lightSpeedIn', 'rollIn', 'bounceInDown' ]; 
+	//var entrances = ['fadeIn']; 
+	var entrances = []; 
+
+	var photos = $('#photos'),
+		ignoreClicks = false;
+
+	var curImage;
+	var prevDirection = "left";
+	var prevDirectionChanged = true;
+	var distanceThreshold = 0;
+		
+	var percentWH = 1920/1280;	
+	var percentHW = 1280/1920;	
+	//var w = $(photos).width();
+
+	var bIsMobilePhone = false;
+	var isMobilePhone = {
+		Android: function() {
+			return navigator.userAgent.match(/Android/i);
+		},
+		BlackBerry: function() {
+			return navigator.userAgent.match(/BlackBerry/i);
+		},
+		iOS: function() {
+			return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+		},
+		Opera: function() {
+			return navigator.userAgent.match(/Opera Mini/i);
+		},
+		Windows: function() {
+			return navigator.userAgent.match(/IEMobile/i);
+		},
+		any: function() {
+			return (isMobilePhone.Android() || isMobilePhone.BlackBerry() || isMobilePhone.iOS() || isMobilePhone.Opera() || isMobilePhone.Windows());
+		}
+	};
+	if(isMobilePhone.any()) {
+	   bIsMobilePhone = true;
+	}
+	 
+
+         // I only want to redirect iPhones, Android phones and a handful of 7" devices
+         if (isMobile.apple.phone || isMobile.android.phone || isMobile.seven_inch) {
+			bIsMobilePhone = true;
+         }
+
+	
+	var parentWindow = $(photos).parent();
+	var w = $(parentWindow).width();
+	var h = $(photos).height();
+
+	if($(parentWindow).width() > $(window).height()) {
+	  //h = h + 30; 
+	}
+	
+	/*
+	if($(parentWindow).width() > $(window).height()) {
+	  h = w * percentHW; 
+	}
+	else {
+	  h = $(window).height() * 0.9;
+	  w = h * percentHW;
+	}
+	*/
+		/*
+		var w = ($(photos).width() * ($(window).width()/$(window).height())); 
+		//w = w * ($(photos).height()/$(photos).width());
+		if(w > $(window).width()) {
+			w = $(window).width() - 150;
+		}
+		
+		var h = w * ($(window).height()/$(window).width()); 
+		*/
+		/*
+	$(photos).css({
+		width: w,
+		height: h
+	});
+	*/
+
+	/*
+	$(photos).find('img:first').css({
+		width: w,
+		height: h
+	});
+	*/
+	$(photos).css({
+		width: w,
+		height: h
+	});
+
+	$('.arrow.previous').css({
+		top: $(photos).offset().top + 40
+	});
+	$('.arrow.next').css({
+		top: $(photos).offset().top + 40
+	});
+	$('.anim-play').css({
+		top: $(photos).offset().top + 40
+	});
+
+	var iw = w;
+	var left = 0;
+	for(var i = 1; i <= 36; i++) {
+		//$(photos).find('li:first').prepend(
+		$(photos).prepend(
+			'<li class="hiddenImage"><div class="CoverImage FlexEmbed FlexEmbed--1920" style="background-image:url(img/saxxcar' + (i) + '.jpg)"></div></li>' 
+		)
+		if(w>=h) {
+			/*
+		  $(photos).prepend(
+  			//'<li><a href="#" style="background-image:url(img/saxxcar' + (i) + '.jpg)"></a></li>'); 
+			//'<li><img src="img/saxxcar' + (i) + '.jpg" width="100%"></img></li>'); 
+			'<li class="hiddenImage"><img src="img/saxxcar' + (i) + '.jpg" width="' + w + '"></img></li>'); 
+			*/
+			
+//		  $(photos).prepend(
+//			'<li class="hiddenImage"><div class="CoverImage FlexEmbed FlexEmbed--4by3" style="background-image:url(img/saxxcar' + (i) + '.jpg)"></div></li>' 
+//		  )
+
+		  /*
+		  .find('img:first')
+		  .load(function(){ 
+				$(this).css({
+				  //*height: w + percentWH,
+				  width: w
+				});
+				console.log("w:" + $(this).width() + "  -- h:"+$(this).height());
+			//}).attr('src', $(photos).find('img').attr('src'));
+			}).attr('src', 'img/saxxcar' + (i) + '.jpg');
+			*/
+		}
+		else {
+		/*
+		  iw = h*percentWH;
+		  left = -((iw - w)/2);
+
+		  $(photos).prepend(
+  			//'<li><a href="#" style="background-image:url(img/saxxcar' + (i) + '.jpg)"></a></li>'); 
+			//'<li><img src="img/saxxcar' + (i) + '.jpg" width="100%"></img></li>'); 
+			
+			//'<li class="hiddenImage"><img src="img/saxxcar' + (i) + '.jpg" height="' + h + '" style="left:-' + ((h*percentWH - w)/2)+ 'px;"></img></li>'); 
+			// '<li class="hiddenImage"><img height="' + h + '" style="left:-' + ((h*percentWH - w)/2)+ 'px;"></img></li>'
+
+			'<li class="hiddenImage"><div class="CoverImage FlexEmbed FlexEmbed--4by3" style="background-image:url(img/saxxcar' + (i) + '.jpg)"></div></li>' 
+
+			//'<li class="hiddenImage"><img src="img/saxxcar' + (i) + '.jpg" height="' + h + '" width="' + w + '" style="left:-' + ((h*percentWH - w)/2)+ 'px;"></img></li>'); 
+			//'<li class="hiddenImage"><div style="position:relative;"><img src="img/saxxcar' + (i) + '.jpg" height="' + h + '" style="left:-' + ((h*percentWH - w)/2)+ 'px;"></img><div></li>'); 					
+		  )
+		  */
+		  /*
+		  .find('img:first')
+		  .load(function(){ 
+				$(this).css({
+				  height: h,
+				  width: iw,
+				  left: left
+				});
+				console.log("w:" + $(this).width() + "  -- h:"+$(this).height());
+			//}).attr('src', $(photos).find('img').attr('src'));
+			}).attr('src', 'img/saxxcar' + (i) + '.jpg');
+			*/
+		 };
+	}
+
+    /*	
+	if( $(window).width() <= 720 ) {
+		$(photos).find('div').css({
+			  'max-width': w
+			});
+	}
+	*/
+	try {
+		$(photos).find('div:first').bgLoaded({
+			afterLoaded : function(){
+			 //console.log("Images loaded");
+				
+				if(bIsMobilePhone) {
+					$(photos).css({
+					  'width': w,
+					  //'height': $(this).height() + 20
+					  'margin-left': -10
+					});
+					$(photos).find('div').css({
+					  'width': w + 40,
+					  //'max-width': w + 40
+					  'margin-left': -10
+					});
+				}
+				else {
+					$(photos).css({
+					  'height': $(this).height() + 20
+					});
+				}
+			}
+		});
+	}
+	catch(err) {
+	}
+
+
+	
+	//console.log("iw:" + iw);
+	/*
+	$(photos).find('img').load(function(){ 
+		$(this).css({
+		  height: h,
+		  width: iw,
+		  left: left
+		});
+		console.log("w:" + $(this).width() + "-- h:"+$(this).height());
+    }).attr('src', $(photos).find('img').attr('src'));
+	*/
+	/*
+	$('.image').load(function(){
+    // stuff
+	}).attr('src', 'new_src');
+	*/
+	curImage = $(photos).find('li:last');
+	/*
+	$(curImage).css({
+	  opacity: 1
+	});
+	*/
+	$(curImage).toggleClass('activeImage',true);
+	$(curImage).toggleClass('hiddenImage');
+
+	$('.arrow').click(function(e, simulated){
+		if(ignoreClicks){
+			
+			// If clicks on the arrows should be ignored,
+			// stop the event from triggering the rest 
+			// of the handlers
+			
+			e.stopImmediatePropagation();
+			return false;
+		}
+		
+		// Otherwise allo this click to proceed,
+		// but raise the ignoreClicks flag
+		
+		ignoreClicks = true;
+		
+		if(!simulated){
+			// Once the user clicks on the arrows,
+			// stop the automatic slideshow
+			clearInterval(slideshow);
+		}
+	});
+
+	// Listen for clicks on the next arrow
+	$('.arrow.previous').click(function(e){
+		
+		e.preventDefault();
+		
+		// The topmost element
+		var elem = $('#photos li:last');
+		
+		// Apply a random exit animation
+		elem.addClass('animated')
+			.addClass( exits[Math.floor(exits.length*Math.random())] );
+		
+			// Reset the classes
+			elem.attr('class','').prependTo(photos);
+			
+			// The animation is complate!
+			// Allow clicks again:
+			ignoreClicks = false;
+		/*
+		setTimeout(function(){
+			
+			// Reset the classes
+			elem.attr('class','').prependTo(photos);
+			
+			// The animation is complate!
+			// Allow clicks again:
+			ignoreClicks = false;
+			
+		},25);
+		*/
+	});
+
+	// Listen for clicks on the previous arrow
+	$('.arrow.next').click(function(e){
+		
+		e.preventDefault();
+		
+		// The bottom-most element
+		var elem = $('#photos li:first');
+		
+		// Move the photo to the top, and 
+		// apply a random entrance animation
+		
+		elem.appendTo(photos)
+			.addClass('animated')
+			.addClass( entrances[Math.floor(entrances.length*Math.random())] );
+
+			// Remove the classess
+			elem.attr('class','');
+			
+			// The animation is complate!
+			// Allow clicks again:
+			ignoreClicks = false;
+			
+         /*			
+		setTimeout(function(){
+			
+			// Remove the classess
+			elem.attr('class','');
+			
+			// The animation is complate!
+			// Allow clicks again:
+			ignoreClicks = false;
+			
+		},25);
+		*/
+	});
+
+	$('.anim-play').mouseenter(function() {
+		// Start an automatic slideshow
+		slideshow = setInterval(function(){
+			// Simulate a click every 1.5 seconds
+			$('.arrow.next').trigger('click',[true]);
+		}, 25);
+	});
+
+	$('.anim-play').mouseleave(function() {
+		clearInterval(slideshow);
+	});
+
+	$(window).resize(function() {
+		var w = $('#photos').width();
+		var h = $('#photos').height();
+		if($(window).width() > $(window).height()) {
+		  h = w * (1280/1920); 
+		}
+		else {
+		  w = h * (1280/1920); 
+		}
+
+		$('#photos').css({
+			width: w,
+			height: h
+		});
+
+		$('.arrow.previous').css({
+			top: $('#photos').offset().top + 40
+		});
+		$('.arrow.next').css({
+			top: $('#photos').offset().top + 40
+		});
+		$('.anim-play').css({
+			top: $(photos).offset().top + 40
+		});
+	});
+
+	// Start an automatic slideshow
+	/*
+	var slideshow = setInterval(function(){
+		
+		// Simulate a click every 1.5 seconds
+		$('.arrow.next').trigger('click',[true]);
+		
+	}, 50);
+	*/
+
+        var swipeOptions = {
+            triggerOnTouchEnd: true,
+            swipeStatus: swipeStatus,
+            allowPageScroll: "vertical",
+            threshold: 10
+        };
+
+        $(function () {
+            $("#photos").swipe(swipeOptions);
+        });
+
+
+        /**
+         * Catch each phase of the swipe.
+         * move : we drag the div
+         * cancel : we animate back to where we were
+         * end : we animate to the next image
+         */
+        function swipeStatus(event, phase, direction, distance) {
+			//If we are moving before swipe, and we are going L or R in X mode, or U or D in Y mode then drag.
+            if (phase == "move" && (direction == "left" || direction == "right")) {
+
+				//console.log(direction + ": distance=" + distance);
+
+				var duration = 0;
+				var trigger = false;
+				var moveLeft = false;
+				var moveRight = false;
+				if(prevDirection != direction) {
+				  distanceThreshold = 0;
+				  prevDirection = direction;
+				}
+				var distanceThresholdNow = Math.floor(distance/10);
+				if ( distanceThresholdNow != distanceThreshold ) {
+					trigger = true;
+					if(direction == "left") {
+						if ( distanceThresholdNow > distanceThreshold ) {
+							moveLeft = true;
+						}
+						else {
+							moveRight = true;
+						}
+					}
+					if(direction == "right") {
+						if ( distanceThresholdNow > distanceThreshold ) {
+							moveRight = true;
+						}
+						else {
+							moveLeft = true;
+						}
+					}
+					distanceThreshold = distanceThresholdNow;
+				}
+				
+                /*				
+				if(prevDirection != direction) {
+				  prevDirectionChanged = true;
+				}				
+				prevDirection = direction;
+				if(prevDirectionChanged) {
+				  prevDirectionChanged = false;
+				  distanceThreshold = 0;
+				}
+				var n = Math.floor(distance/10);
+				if ( n != distanceThreshold ) {
+					distanceThreshold = n;
+					trigger = true;
+				}
+				*/
+			    if(trigger) {
+                  //if (direction == "left") {
+				  if(moveLeft) {
+					//console.log("Move left");
+					//$('.arrow.previous').trigger('click',[true]);
+					curImage = $(photos).find('.activeImage');
+					if ($(curImage).prev().length > 0) {http://localhost:8080/paulboici/images/design/munch/MUNCH41.jpg
+						$(curImage).prev().toggleClass('activeImage',true);
+						$(curImage).prev().toggleClass('hiddenImage');
+					}
+					else {
+						var prev = $(photos).find('li:last');
+						$(prev).toggleClass('activeImage',true);
+						$(prev).toggleClass('hiddenImage');
+					}
+					$(curImage).toggleClass('activeImage');
+					$(curImage).toggleClass('hiddenImage');
+                  } 
+				  //else if (direction == "right") {
+  				  else if(moveRight) {
+					//console.log("Move right");
+					//$('.arrow.next').trigger('click',[true]);
+					// $('.arrow.next').trigger('click',[true]);
+					curImage = $(photos).find('.activeImage');
+					if ($(curImage).next().length > 0) {
+						$(curImage).next().toggleClass('activeImage',true);
+						$(curImage).next().toggleClass('hiddenImage');
+					}
+					else {
+						var next = $(photos).find('li:first');
+						$(next).toggleClass('activeImage',true);
+						$(next).toggleClass('hiddenImage');
+					}
+					$(curImage).toggleClass('activeImage');
+					$(curImage).toggleClass('hiddenImage');
+				  }
+                }
+            } else if (phase == "cancel") {
+            } else if (phase == "end") {
+			    //prevDirectionChanged = true;
+			    distanceThreshold = 0;
+				prevDirection = "left";
+				//clearInterval(slideshow);
+                if (direction == "right") {
+					// $('.arrow.next').trigger('click',[true]);
+                } 
+				else if (direction == "left") {
+					//$('.arrow.previous').trigger('click',[true]);
+                }
+            }
+        }
+	
+  });		// document ready
+});
